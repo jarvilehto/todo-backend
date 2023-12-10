@@ -12,6 +12,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+//Get all todos that are not completed
+router.get("/wip", async (req, res) => {
+  try {
+    const todos = await Todo.find({ completed: false });
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//Get all todos that are completed
+router.get("/completed", async (req, res) => {
+  try {
+    const todos = await Todo.find({ completed: true });
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 //Get one todo
 router.get("/:id", async (req, res) => {
   try {
@@ -49,6 +69,19 @@ router.patch("/:id", async (req, res) => {
     if (req.body.description) {
       todo.description = req.body.description;
     }
+    const updatedTodo = await todo.save();
+    res.json(updatedTodo);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+//Complete todo by setting completed to true and setting completedAt
+router.patch("/complete/:id", async (req, res) => {
+  try {
+    const todo = await Todo.findById(req.params.id);
+    todo.completed = true;
+    todo.completedAt = Date.now();
     const updatedTodo = await todo.save();
     res.json(updatedTodo);
   } catch (err) {
